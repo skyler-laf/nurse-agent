@@ -1,7 +1,7 @@
 services:
   # 1. FastAPI Python Backend Web Service
   - type: web
-    name: nurse-agent-backend
+    name: nurse-agent-backend-skyler
     env: python
     plan: free
     buildCommand: pip install -r backend/requirements.txt
@@ -20,4 +20,4 @@ services:
       # Route all API traffic to the backend service
       - type: rewrite
         source: /api/*
-        destination: https://nurse-agent-backend.onrender.com/api/*
+        destination: https://nurse-agent-backend-skyler.onrender.com/api/*
