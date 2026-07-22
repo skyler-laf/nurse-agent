@@ -15,7 +15,7 @@ export default function AgentConsole({ logs, isLoading }) {
       <div className="console-header">
         <div className="console-title">
           <Terminal style={{ width: '1rem', height: '1rem', color: 'var(--success)' }} />
-          Flight Console
+          Clinical Console
         </div>
         <div className="console-dots">
           <div className="console-dot red"></div>
@@ -27,7 +27,7 @@ export default function AgentConsole({ logs, isLoading }) {
         {logs.length === 0 ? (
           <div className="console-placeholder">
             <Terminal style={{ width: '2.5rem', height: '2.5rem', opacity: 0.2 }} />
-            <p>Ready to search. Run a query to start the flight agent.</p>
+            <p>Logs will stream here during intake report compilation.</p>
           </div>
         ) : (
           logs.map((log, index) => (

@@ -371,7 +371,11 @@ async def compile_report_endpoint(
                 break
             yield f"data: {json.dumps(item)}\n\n"
 
-    return StreamingResponse(event_generator(), media_type="text/event-stream")
+    return StreamingResponse(
+        event_generator(), 
+        media_type="text/event-stream",
+        headers={"X-Accel-Buffering": "no"}
+    )
 
 if __name__ == "__main__":
     import uvicorn
