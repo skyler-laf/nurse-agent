@@ -11,10 +11,11 @@ services:
         sync: false # Set manually in Render dashboard
 
   # 2. React Vite Frontend Static Site
-  - type: static
+  - type: web
     name: nurse-agent-frontend
+    runtime: static
     buildCommand: cd frontend && npm install && npm run build
-    publishDir: frontend/dist
+    staticPublishPath: frontend/dist
     routes:
       # Route all API traffic to the backend service
       - type: rewrite
