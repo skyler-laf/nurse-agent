@@ -2,7 +2,7 @@ import os
 import sqlite3
 
 # Resolve database path dynamically
-if os.getenv("VERCEL"):
+if os.getenv("VERCEL") or os.getenv("RENDER"):
     DB_PATH = "/tmp/nurse_intake.db"
 else:
     DB_PATH = os.path.join(os.path.dirname(__file__), "nurse_intake.db")
