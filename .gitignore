@@ -1,0 +1,13 @@
+# Dependencies
+node_modules/
+.venv/
+__pycache__/
+*.pyc
+
+# Local databases & keys
+*.db
+.env
+
+# Build outputs
+dist/
+.vite/
