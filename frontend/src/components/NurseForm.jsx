@@ -37,14 +37,14 @@ export default function NurseForm({ messages, extractedData, onSendMessage, onCo
           {messages.map((msg, index) => (
             <div 
               key={index} 
-              className={`chat-bubble ${msg.role === 'model' ? 'nurse' : 'patient'}`}
+              className={`chat-bubble ${msg.role === 'model' ? 'patient' : 'nurse'}`}
             >
               {msg.content}
             </div>
           ))}
           {isLoading && (
-            <div className="chat-bubble nurse" style={{ opacity: 0.7, fontStyle: 'italic', display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
-              <span>Nurse is typing...</span>
+            <div className="chat-bubble patient" style={{ opacity: 0.7, fontStyle: 'italic', display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+              <span>Patient is typing...</span>
             </div>
           )}
           <div ref={messagesEndRef} />
@@ -136,7 +136,7 @@ export default function NurseForm({ messages, extractedData, onSendMessage, onCo
               style={{ color: extractedData.symptoms ? 'var(--success)' : 'var(--text-secondary)', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '240px' }}
               title={extractedData.symptoms || ''}
             >
-              {extractedData.symptoms ? 'Logged' : 'Waiting...'}
+              {extractedData.symptoms ? extractedData.symptoms : 'Waiting...'}
             </span>
           </div>
         </div>
