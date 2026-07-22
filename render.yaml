@@ -1,0 +1,28 @@
+services:
+  # 1. FastAPI Python Backend Web Service
+  - type: web
+    name: nurse-agent-backend
+    env: python
+    plan: free
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT --app-dir backend
+    envVars:
+      - key: GEMINI_API_KEY
+        sync: false # Set manually in Render dashboard
+
+  # 2. React Vite Frontend Static Site
+  - type: web
+    name: nurse-agent-frontend
+    env: static
+    plan: free
+    buildCommand: cd frontend && npm install && npm run build
+    publishDir: frontend/dist
+    routes:
+      # Route all API traffic to the backend service
+      - type: rewrite
+        source: /api/*
+        destination: https://nurse-agent-backend.onrender.com/api/*
+      # Support Single Page App client routing
+      - type: rewrite
+        source: /*
+        destination: /index.html
