@@ -54,7 +54,14 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, canClose }
   };
 
   return (
-    <div className="modal-overlay">
+    <div 
+      className="modal-overlay" 
+      style={{ 
+        backdropFilter: 'blur(12px)', 
+        WebkitBackdropFilter: 'blur(12px)',
+        backgroundColor: 'rgba(5, 7, 15, 0.85)' 
+      }}
+    >
       <div className="glass-panel modal-card p-6">
         
         {/* Close Button - only show if user can close */}
