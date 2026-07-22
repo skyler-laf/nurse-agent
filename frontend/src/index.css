@@ -194,16 +194,16 @@ header {
   background: rgba(99, 102, 241, 0.12);
   border: 1px solid rgba(99, 102, 241, 0.2);
   color: #e0e7ff;
-  align-self: flex-start;
-  border-top-left-radius: 0.25rem;
+  align-self: flex-end;
+  border-top-right-radius: 0.25rem;
 }
 
 .chat-bubble.patient {
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.08);
   color: #f8fafc;
-  align-self: flex-end;
-  border-top-right-radius: 0.25rem;
+  align-self: flex-start;
+  border-top-left-radius: 0.25rem;
 }
 
 .chat-input-area {
