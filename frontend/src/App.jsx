@@ -284,9 +284,9 @@ export default function App() {
     setErrorMsg("");
     setActiveHistoryId(id);
 
-    // Look for it in our client-side cache first
+    // Look for it in our client-side cache first if the full report is present
     const cachedItem = historyList.find(item => item.id === id);
-    if (cachedItem) {
+    if (cachedItem && cachedItem.report_json) {
       try {
         const parsedReport = typeof cachedItem.report_json === 'string'
           ? JSON.parse(cachedItem.report_json)
