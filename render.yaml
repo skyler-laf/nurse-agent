@@ -21,7 +21,3 @@ services:
       - type: rewrite
         source: /api/*
         destination: https://nurse-agent-backend.onrender.com/api/*
-      # Support Single Page App client routing
-      - type: rewrite
-        source: /*
-        destination: /index.html
