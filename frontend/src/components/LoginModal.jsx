@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
 import { X, Lock, User, Sparkles, AlertCircle } from 'lucide-react';
 
+const BACKEND_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? ''
+  : 'https://nurse-agent-backend-skyler.onrender.com';
+
 export default function LoginModal({ isOpen, onClose, onLoginSuccess, canClose }) {
   const [isSignUp, setIsSignUp] = useState(false);
   const [username, setUsername] = useState("");
@@ -22,8 +26,8 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, canClose }
 
     setIsLoading(true);
     const endpoint = isSignUp 
-      ? `/api/auth/register` 
-      : `/api/auth/login`;
+      ? `${BACKEND_URL}/api/auth/register` 
+      : `${BACKEND_URL}/api/auth/login`;
     const payload = isSignUp 
       ? { username, password, preferences }
       : { username, password };

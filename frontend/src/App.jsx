@@ -6,6 +6,10 @@ import IntakeReportView from './components/IntakeReportView';
 import AgentConsole from './components/AgentConsole';
 import LoginModal from './components/LoginModal';
 
+const BACKEND_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? ''
+  : 'https://nurse-agent-backend-skyler.onrender.com';
+
 const INITIAL_EXTRACTED = {
   name: null,
   age: null,
@@ -62,7 +66,7 @@ export default function App() {
 
   const fetchHistory = async (userId) => {
     try {
-      const res = await fetch(`/api/reports?user_id=${userId}`);
+      const res = await fetch(`${BACKEND_URL}/api/reports?user_id=${userId}`);
       if (res.ok) {
         const data = await res.json();
         setHistoryList(data);
@@ -104,8 +108,8 @@ export default function App() {
     handleResetIntake();
     
     const url = scenarioId 
-      ? `/api/generate-patient-case?scenario=${encodeURIComponent(scenarioId)}`
-      : `/api/generate-patient-case`;
+      ? `${BACKEND_URL}/api/generate-patient-case?scenario=${encodeURIComponent(scenarioId)}`
+      : `${BACKEND_URL}/api/generate-patient-case`;
 
     try {
       const res = await fetch(url);
@@ -140,7 +144,7 @@ export default function App() {
     }));
 
     try {
-      const res = await fetch('/api/chat', {
+      const res = await fetch(`${BACKEND_URL}/api/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -180,7 +184,7 @@ export default function App() {
     const temp = extractedData.temp_f || patientCase.temp_f;
     const bp = extractedData.blood_pressure || patientCase.blood_pressure;
 
-    const url = `/api/compile-report?name=${encodeURIComponent(name)}&age=${age}&symptoms=${encodeURIComponent(symptoms)}&weight=${weight}&height=${height}&temperature=${temp}&blood_pressure=${encodeURIComponent(bp)}`;
+    const url = `${BACKEND_URL}/api/compile-report?name=${encodeURIComponent(name)}&age=${age}&symptoms=${encodeURIComponent(symptoms)}&weight=${weight}&height=${height}&temperature=${temp}&blood_pressure=${encodeURIComponent(bp)}`;
     const eventSource = new EventSource(url);
 
     eventSource.onmessage = (event) => {
@@ -228,7 +232,7 @@ export default function App() {
 
   const autoSaveReport = async (report) => {
     try {
-      await fetch('/api/reports', {
+      await fetch(`${BACKEND_URL}/api/reports`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -256,7 +260,7 @@ export default function App() {
     setActiveHistoryId(id);
 
     try {
-      const res = await fetch(`/api/reports/${id}`);
+      const res = await fetch(`${BACKEND_URL}/api/reports/${id}`);
       if (res.ok) {
         const data = await res.json();
         setReportData(data);
@@ -272,7 +276,7 @@ export default function App() {
 
   const handleDeleteHistory = async (id) => {
     try {
-      const res = await fetch(`/api/reports/${id}`, { method: 'DELETE' });
+      const res = await fetch(`${BACKEND_URL}/api/reports/${id}`, { method: 'DELETE' });
       if (res.ok) {
         if (activeHistoryId === id) {
           setReportData(null);
