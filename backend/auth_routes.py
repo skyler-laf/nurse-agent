@@ -91,7 +91,36 @@ def login_user(user: UserLogin):
     conn.close()
     
     if not db_user:
-        raise HTTPException(status_code=401, detail="Invalid username or password")
+        # Auto-register user to gracefully handle ephemeral database resets on Render!
+        pwd_hash = hash_password(user.password)
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        try:
+            cursor.execute(
+                "INSERT INTO users (username, password_hash, preferences) VALUES (?, ?, ?)",
+                (username, pwd_hash, "Nurse Station A")
+            )
+            conn.commit()
+            user_id = cursor.lastrowid
+            db_user = {
+                "id": user_id,
+                "username": username,
+                "preferences": "Nurse Station A"
+            }
+        except Exception as e:
+            conn.rollback()
+            raise HTTPException(status_code=500, detail=f"Database auto-registration failure: {str(e)}")
+        finally:
+            conn.close()
+        
+        return {
+            "status": "success",
+            "user": {
+                "id": db_user["id"],
+                "username": db_user["username"],
+                "preferences": db_user["preferences"]
+            }
+        }
         
     pwd_hash = hash_password(user.password)
     if db_user["password_hash"] != pwd_hash:
