@@ -52,6 +52,21 @@ export default function App() {
   const [reportData, setReportData] = useState(null);
   const [errorMsg, setErrorMsg] = useState("");
 
+  const restoreActiveSession = (userId) => {
+    const saved = localStorage.getItem(`active_session_${userId}`);
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        setChatMessages(parsed.chatMessages || []);
+        setExtractedData(parsed.extractedData || INITIAL_EXTRACTED);
+        setPatientCase(parsed.patientCase || null);
+        setIsComplete(parsed.isComplete || false);
+      } catch (e) {
+        console.error("Failed to restore active session:", e);
+      }
+    }
+  };
+
   // Load user session on startup
   useEffect(() => {
     const savedUser = localStorage.getItem('currentClinician');
@@ -59,10 +74,23 @@ export default function App() {
       const parsed = JSON.parse(savedUser);
       setCurrentUser(parsed);
       fetchHistory(parsed.id);
+      restoreActiveSession(parsed.id);
     } else {
       setIsLoginOpen(true);
     }
   }, []);
+
+  // Auto-save active in-progress session to localStorage
+  useEffect(() => {
+    if (currentUser && patientCase) {
+      localStorage.setItem(`active_session_${currentUser.id}`, JSON.stringify({
+        chatMessages,
+        extractedData,
+        patientCase,
+        isComplete
+      }));
+    }
+  }, [chatMessages, extractedData, patientCase, isComplete, currentUser]);
 
   const fetchHistory = async (userId) => {
     // Render from local storage cache first
@@ -87,9 +115,13 @@ export default function App() {
     setCurrentUser(user);
     localStorage.setItem('currentClinician', JSON.stringify(user));
     fetchHistory(user.id);
+    restoreActiveSession(user.id);
   };
 
   const handleLogout = () => {
+    if (currentUser) {
+      localStorage.removeItem(`active_session_${currentUser.id}`);
+    }
     setCurrentUser(null);
     setHistoryList([]);
     setActiveHistoryId(null);
@@ -106,6 +138,9 @@ export default function App() {
     setErrorMsg("");
     setActiveHistoryId(null);
     setPatientCase(null);
+    if (currentUser) {
+      localStorage.removeItem(`active_session_${currentUser.id}`);
+    }
   };
 
   // Generate patient case
@@ -448,7 +483,7 @@ export default function App() {
           
           {reportData ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
+              <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-start', flexWrap: 'wrap' }}>
                 <button 
                   onClick={handleResetIntake}
                   className="btn-select"
@@ -457,6 +492,18 @@ export default function App() {
                   <RefreshCw style={{ width: '0.85rem', height: '0.85rem' }} />
                   <span>Start New Patient Intake Session</span>
                 </button>
+                {patientCase && (
+                  <button 
+                    onClick={() => {
+                      setReportData(null);
+                      setActiveHistoryId(null);
+                    }}
+                    className="btn-primary"
+                    style={{ width: 'auto', display: 'flex', alignItems: 'center', gap: '0.375rem', padding: '0.5rem 1rem', borderRadius: '0.75rem' }}
+                  >
+                    <span>Back to Active Chat ({patientCase.name})</span>
+                  </button>
+                )}
               </div>
               <IntakeReportView report={reportData} />
             </div>
