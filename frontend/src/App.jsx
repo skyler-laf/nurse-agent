@@ -65,11 +65,18 @@ export default function App() {
   }, []);
 
   const fetchHistory = async (userId) => {
+    // Render from local storage cache first
+    const cached = localStorage.getItem(`triage_history_${userId}`);
+    if (cached) {
+      setHistoryList(JSON.parse(cached));
+    }
+
     try {
       const res = await fetch(`${BACKEND_URL}/api/reports?user_id=${userId}`);
       if (res.ok) {
         const data = await res.json();
         setHistoryList(data);
+        localStorage.setItem(`triage_history_${userId}`, JSON.stringify(data));
       }
     } catch (err) {
       console.error("Failed to load history:", err);
@@ -231,6 +238,24 @@ export default function App() {
   };
 
   const autoSaveReport = async (report) => {
+    // Generate a temporary local item and cache it immediately
+    const newItem = {
+      id: `local_${Date.now()}`,
+      user_id: currentUser.id,
+      patient_name: report.patient_name,
+      symptoms: report.clinical_summary,
+      weight: report.vitals.weight,
+      height: report.vitals.height,
+      temperature: report.vitals.temperature,
+      blood_pressure: report.vitals.blood_pressure,
+      report_json: JSON.stringify(report),
+      created_at: new Date().toISOString()
+    };
+
+    const updatedList = [newItem, ...historyList];
+    setHistoryList(updatedList);
+    localStorage.setItem(`triage_history_${currentUser.id}`, JSON.stringify(updatedList));
+
     try {
       await fetch(`${BACKEND_URL}/api/reports`, {
         method: 'POST',
@@ -259,6 +284,21 @@ export default function App() {
     setErrorMsg("");
     setActiveHistoryId(id);
 
+    // Look for it in our client-side cache first
+    const cachedItem = historyList.find(item => item.id === id);
+    if (cachedItem) {
+      try {
+        const parsedReport = typeof cachedItem.report_json === 'string'
+          ? JSON.parse(cachedItem.report_json)
+          : cachedItem.report_json;
+        setReportData(parsedReport);
+        setIsLoading(false);
+        return;
+      } catch (e) {
+        console.error("Failed to parse cached report:", e);
+      }
+    }
+
     try {
       const res = await fetch(`${BACKEND_URL}/api/reports/${id}`);
       if (res.ok) {
@@ -275,13 +315,19 @@ export default function App() {
   };
 
   const handleDeleteHistory = async (id) => {
+    // Remove from local cache immediately
+    const updatedList = historyList.filter(item => item.id !== id);
+    setHistoryList(updatedList);
+    localStorage.setItem(`triage_history_${currentUser.id}`, JSON.stringify(updatedList));
+
+    if (activeHistoryId === id) {
+      setReportData(null);
+      setActiveHistoryId(null);
+    }
+
     try {
       const res = await fetch(`${BACKEND_URL}/api/reports/${id}`, { method: 'DELETE' });
       if (res.ok) {
-        if (activeHistoryId === id) {
-          setReportData(null);
-          setActiveHistoryId(null);
-        }
         fetchHistory(currentUser.id);
       }
     } catch (err) {
